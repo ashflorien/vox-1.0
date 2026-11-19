@@ -8,24 +8,28 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 private:
-    class ThemeLookAndFeel : public juce::LookAndFeel_V4 {
+    class HardwareLookAndFeel : public juce::LookAndFeel_V4 {
     public:
-        juce::Colour accent { 0xff64e2ca }, surface { 0xff1b2530 }, foreground { 0xfff1f4f8 };
+        juce::Colour accent { 0xffe23d37 }, ink { 0xfff2eee8 }, panel { 0xff25262a };
+        void drawLinearSlider(juce::Graphics&, int, int, int, int, float, float, float,
+                              const juce::Slider::SliderStyle, juce::Slider&) override;
         void drawRotarySlider(juce::Graphics&, int, int, int, int, float, float, float, juce::Slider&) override;
-    } theme;
-    void timerCallback() override;
+    } look;
     void applyTheme();
+    void timerCallback() override;
     VoxOneAudioProcessor& processor;
     juce::Slider gate, comp, gain, saturation;
     juce::ComboBox skin, satType, meterMode;
-    juce::Label gateLabel, compLabel, gainLabel, satLabel, meterLabel, skinLabel, typeLabel;
-    juce::Rectangle<int> meterBounds;
-    float displayedMeter = -60.f;
-    using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
-    using ComboAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
-    std::unique_ptr<SliderAttachment> gateAttachment, compAttachment, gainAttachment, satAttachment;
-    std::unique_ptr<ComboAttachment> skinAttachment, typeAttachment;
+    juce::TextButton power { "" };
+    using SA = juce::AudioProcessorValueTreeState::SliderAttachment;
+    using CA = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
+    std::unique_ptr<SA> gateAttachment, compAttachment, gainAttachment, satAttachment;
+    std::unique_ptr<CA> skinAttachment, typeAttachment;
     int currentSkin = -1;
-    juce::Colour bg { 0xff111820 }, surface { 0xff1b2530 }, ink { 0xfff1f4f8 }, muted { 0xff96a5b1 }, accent { 0xff64e2ca };
+    float displayedMeter = -60.f;
+    float displayedReduction = 0.f;
+    juce::Colour bg { 0xff202125 }, panel { 0xff303136 }, ink { 0xfff2eee8 }, muted { 0xffbbb9b7 }, accent { 0xffe23d37 };
+    // Design coordinates are in a 1200 x 760 logical grid; children use the same transform.
+    juce::Rectangle<float> viewport() const;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VoxOneAudioProcessorEditor)
 };

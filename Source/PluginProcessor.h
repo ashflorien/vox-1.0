@@ -24,6 +24,7 @@ public:
     void setStateInformation(const void*, int) override;
     bool isBusesLayoutSupported(const BusesLayout&) const override;
     juce::AudioProcessorValueTreeState parameters;
+    std::atomic<bool> uiBypassed { false };
     std::atomic<float> gainReductionDb { 0.0f }, inputLevelDb { -90.0f }, outputLevelDb { -90.0f };
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createLayout();

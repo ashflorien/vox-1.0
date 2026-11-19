@@ -44,6 +44,14 @@ void VoxOneAudioProcessor::processBlock(juce::AudioBuffer<float>& b, juce::MidiB
     juce::ScopedNoDenormals noDenormals;
     const int channels = juce::jmin(2, juce::jmin(b.getNumChannels(), getTotalNumInputChannels()));
     if (channels == 0) { b.clear(); return; }
+    if (uiBypassed.load()) {
+        float peak = 0.f;
+        for (int ch=0; ch<channels; ++ch)
+            for (int i=0; i<b.getNumSamples(); ++i) peak=juce::jmax(peak,std::abs(b.getSample(ch,i)));
+        const float level=db(peak);
+        inputLevelDb.store(level); outputLevelDb.store(level); gainReductionDb.store(0.f);
+        return;
+    }
     const float gateDb = parameters.getRawParameterValue("gate")->load();
     const float amount = parameters.getRawParameterValue("comp")->load();
     const float gain = parameters.getRawParameterValue("gain")->load();
