@@ -1,0 +1,41 @@
+
+name: Build VoxOne for Apple Silicon
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Configure JUCE project
+        run: >
+          cmake -S . -B build -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES=arm64
+
+      - name: Build AU and VST3
+        run: >
+          cmake --build build
+          --config Release
+          --target VoxOne_AU VoxOne_VST3
+          --parallel 3
+
+      - name: Package plugins
+        run: |
+          mkdir -p dist
+          find build -name "VoxOne.component" -type d -exec cp -R {} dist/ \;
+          find build -name "VoxOne.vst3" -type d -exec cp -R {} dist/ \;
+          cd dist
+          zip -r ../VoxOne-Apple-Silicon.zip .
+
+      - name: Upload plugins
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoxOne-Apple-Silicon-Plugins
+          path: VoxOne-Apple-Silicon.zip
